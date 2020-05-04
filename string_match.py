@@ -2,9 +2,8 @@
 from __future__ import division
 
 import time
-import copy 
 import json
-# import 
+# import difflib
 from itertools import combinations
 
 # Loading the word map on the memory
@@ -43,11 +42,19 @@ def quick_sort_array_of_object(arr, key):
 
 # Creating fuzzy words from the words
 # It creates all the combination of words possible
-def create_fuzzy_words(word):
+def create_fuzzy_words(word, keys):
 	unique_words = [word]
-	word_array = [w for w in word]
 	wlen = len(word)
+	# Appending words which contain strings
+	for k, d in enumerate(keys):
+		if word in d and d not in unique_words and wlen/len(d) > .55:
+			unique_words.append(d)
+
+	# print difflib.get_close_matches(word, keys, 2, 0.5)
+	word_array = [w for w in word]
 	for i in range(1, wlen):
+		# if i > int(wlen/2):
+		# 	break
 		for comb in list(combinations(word_array, i)):
 			strr = ''.join(comb)
 			if word_map.get(strr):
@@ -56,39 +63,49 @@ def create_fuzzy_words(word):
 				percentage = flen/wlen
 				# If the alphabets appearance is more than 50% of the main word consider it
 				# print percentage
-				if strr not in unique_words and percentage > .5:
+				if strr not in unique_words and percentage > .55:
 					unique_words.append(strr)
 	return unique_words
 
 
-def order_by_appearance(fuzzy, book_object):
-	temp = set([])
-	for f in fuzzy:
-		for i, val in enumerate(word_map.get(f) or []):
-			# print val
-			if val not in temp:
-				temp.add(val)
-				if not book_object.get(val):
-					book_object[val] = 1
-				else:
-					book_object[val] += 1
-	return book_object
-
-
 # calculating the score
 # It takes the words and book id as argument
-def calculate_score(words, word_data):
+def calculate_score(fuzzy_words, words, word_data):
+	# print fuzzy_words
 	mapping = word_data.get('mapping')
 	total_words = word_data.get('word_count')
 	total_score = 0
-	for w in words:
-		if mapping.get(w):
-			total_score += mapping.get(w).get('appearance')
-			for pos in mapping.get(w).get('position'):
-				total_score += (total_words - pos)/100
+	for word in words:
+		for w in fuzzy_words[word]:
+			if mapping.get(w):
+				# For the exact words scoring it higher than fuzzy words
+				if w == word:
+					total_score += mapping.get(w).get('appearance') * 1
+					# Calculating score based on the position of the string
+					# The more close it appear to the begin the score will be more high
+					for pos in mapping.get(w).get('position'):
+						total_score += ((total_words - pos)/100) * .5
+
+				else:
+					total_score += mapping.get(w).get('appearance') * .3
+					# Calculating score based on the position of the string
+					# The more close it appear to the begin the score will be more high
+					for pos in mapping.get(w).get('position'):
+						total_score += ((total_words - pos)/100) * .15
 
 	return total_score
 	# return total_score,
+
+
+# Loop through all book ids and return unique book ids
+# Which will be used to calculate score
+def get_unique_bids(temp_array):
+	temp = set([])
+	for i, val in enumerate(temp_array):
+		if val not in temp:
+			temp.add(val)
+			
+	return list(temp)
 
 
 # Main function of the search engine code
@@ -96,49 +113,39 @@ def calculate_score(words, word_data):
 # Return the relevant book data
 def search_engine(query, count):
 	if not query: return []
+	keys = word_map.keys()
 	query = query.lower().strip()
 	words = [f.strip() for f in query.split(' ') if f]
 	wlen = len(words)
 	book_id_object = {}
-	for w in words:
-		fuzzy = create_fuzzy_words(w)
-		print fuzzy
-		book_id_object = order_by_appearance(fuzzy, book_id_object)
-		# book_object = get_matching_book_ids(fuzzy, book_object)
-	
-	length_obj = {}
-	print book_id_object
-	for k in book_id_object:
-		if not length_obj.get(book_id_object[k]):
-			length_obj[book_id_object[k]] = [k]
-		elif k not in length_obj.get(book_id_object[k]):
-			length_obj.get(book_id_object[k]).append(k)
-
-	clen = wlen
 	considered_id = []
-	while len(considered_id) < count and clen >= 0:
-		if length_obj.get(clen):
-			considered_id += length_obj.get(clen)
-		clen -= 1
+	temp_array = []
+	fuzzy_words = {}
+	for w in words:
+		fuzzy = create_fuzzy_words(w, keys)
+		fuzzy_words[w] = fuzzy
+		for f in fuzzy:
+			temp_array += word_map.get(f)
 
+	considered_id = get_unique_bids(temp_array)
 	return_data = []
-	print considered_id
 	for cid in considered_id:
-		word_data = copy.deepcopy(data.get(str(cid)))
-		score = calculate_score(words, word_data)
+		word_data = json.loads(json.dumps(data.get(str(cid))))
+		score = calculate_score(fuzzy_words, words, word_data)
 		word_data['score'] = score
 		word_data['id'] = cid
 		del word_data['mapping']
 		del word_data['word_count']
-		# del word_data['word_count']
+		# del word_data['score']
+		# del word_data['summary']
+		# del word_data['title']
 		return_data.append(word_data)
 
 	return_data = quick_sort_array_of_object(return_data, 'score')[::-1]
-	return return_data#[0:count]
+	return return_data[0:count]
 
 
 if __name__ == "__main__":
 	stime = time.time()
-	print search_engine("achieve take books", 3)
+	print search_engine("your problems", 3)
 	print time.time() - stime
-	# print order_by_appearance(['problems', 'problem'], {})
