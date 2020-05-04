@@ -3,7 +3,7 @@ from __future__ import division
 
 import time
 import json
-# import difflib
+import difflib
 from itertools import combinations
 
 # Loading the word map on the memory
@@ -47,10 +47,10 @@ def create_fuzzy_words(word, keys):
 	wlen = len(word)
 	# Appending words which contain strings
 	for k, d in enumerate(keys):
-		if word in d and d not in unique_words and wlen/len(d) > .55:
+		if word in d and d not in unique_words and wlen/len(d) > .4:
 			unique_words.append(d)
 
-	# print difflib.get_close_matches(word, keys, 2, 0.5)
+	# print difflib.get_close_matches(word, keys, 2, 0.55)
 	word_array = [w for w in word]
 	for i in range(1, wlen):
 		# if i > int(wlen/2):
@@ -61,7 +61,7 @@ def create_fuzzy_words(word, keys):
 				flen = len(strr)
 				# Measuring how much percentage of alphabets it contains of the main word
 				percentage = flen/wlen
-				# If the alphabets appearance is more than 50% of the main word consider it
+				# If the alphabets appearance is more than 55% of the main word consider it
 				# print percentage
 				if strr not in unique_words and percentage > .55:
 					unique_words.append(strr)
@@ -71,7 +71,6 @@ def create_fuzzy_words(word, keys):
 # calculating the score
 # It takes the words and book id as argument
 def calculate_score(fuzzy_words, words, word_data):
-	# print fuzzy_words
 	mapping = word_data.get('mapping')
 	total_words = word_data.get('word_count')
 	total_score = 0
@@ -147,5 +146,5 @@ def search_engine(query, count):
 
 if __name__ == "__main__":
 	stime = time.time()
-	print search_engine("your problems", 3)
+	print search_engine("problems", 1)
 	print time.time() - stime
