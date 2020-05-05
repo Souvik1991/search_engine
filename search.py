@@ -59,7 +59,7 @@ def api_search():
 
 			temp_array.append(books[query])
 
-		return {"books": temp_array}
+		return {"quaries": quaries, "K": K, "books": temp_array}
 
 if __name__ == '__main__':
 	app.run(debug=True)
