@@ -63,7 +63,7 @@ def create_fuzzy_words(word, keys):
 				percentage = flen/wlen
 				# If the alphabets appearance is more than 55% of the main word consider it
 				# print percentage
-				if strr not in unique_words and percentage > .55:
+				if strr not in unique_words and percentage > .5:
 					unique_words.append(strr)
 	return unique_words
 
@@ -124,7 +124,8 @@ def search_engine(query, count):
 		fuzzy = create_fuzzy_words(w, keys)
 		fuzzy_words[w] = fuzzy
 		for f in fuzzy:
-			temp_array += word_map.get(f)
+			if word_map.get(f):
+				temp_array += word_map.get(f)
 
 	considered_id = get_unique_bids(temp_array)
 	return_data = []
