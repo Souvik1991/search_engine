@@ -6,6 +6,8 @@ import json
 import difflib
 from itertools import combinations
 
+from .words import all_words
+
 # Loading the word map on the memory
 word_map = {}
 with open('word.map.json', 'r') as f:
@@ -74,23 +76,29 @@ def calculate_score(fuzzy_words, words, word_data):
 	mapping = word_data.get('mapping')
 	total_words = word_data.get('word_count')
 	total_score = 0
+	total_word_present = 0
+	# print fuzzy_words
 	for word in words:
-		for w in fuzzy_words[word]:
-			if mapping.get(w):
-				# For the exact words scoring it higher than fuzzy words
-				if w == word:
-					total_score += mapping.get(w).get('appearance') * 1
-					# Calculating score based on the position of the string
-					# The more close it appear to the begin the score will be more high
-					for pos in mapping.get(w).get('position'):
-						total_score += ((total_words - pos)/100) * .5
+		# For the exact words scoring it higher than fuzzy words
+		if mapping.get(word):
+			total_word_present += 1
+			total_score += mapping.get(word).get('appearance') * 1
+			# Calculating score based on the position of the string
+			# The more close it appear to the begin the score will be more high
+			for pos in mapping.get(word).get('position'):
+				total_score += ((total_words - pos)/100) * .5
 
-				else:
-					total_score += mapping.get(w).get('appearance') * .3
+		else:
+			for i in range(1, len(fuzzy_words[word])):
+				w = fuzzy_words[word][i]
+				if mapping.get(w):
+					total_score += mapping.get(w).get('appearance') * .2
 					# Calculating score based on the position of the string
 					# The more close it appear to the begin the score will be more high
 					for pos in mapping.get(w).get('position'):
-						total_score += ((total_words - pos)/100) * .15
+						total_score += ((total_words - pos)/100) * .1
+
+	total_score += total_word_present * 15
 
 	return total_score
 	# return total_score,
@@ -114,8 +122,8 @@ def search_engine(query, count):
 	if not query: return []
 	keys = word_map.keys()
 	query = query.lower().strip()
-	words = [f.strip() for f in query.split(' ') if f]
-	wlen = len(words)
+	words = [f.strip() for f in query.split(' ') if f and f not in all_words]
+	# wlen = len(words)
 	book_id_object = {}
 	considered_id = []
 	temp_array = []

@@ -2,6 +2,8 @@ import os
 import re
 import json
 
+from search.words import all_words
+
 # Read the raw file from json and parse it
 # Return the JSON value
 def read_raw_data():
@@ -17,6 +19,7 @@ def replace_special_characters(string):
 	string = string.replace(u"\u2019", "'")
 	string = re.sub(r'[^\x00-\x7F]+', ' ', string)
 	string = re.sub('[/.,-/(/)!@#$%^&/*-_+=;:]', ' ', string)
+
 	return string
 
 
@@ -35,7 +38,7 @@ def generate_mapping(summary, bid, main_word_id_map):
 	word_object = {}
 	counter = 0
 	for word in words:
-		if word:
+		if word and word not in all_words:
 			if not word_object.get(word):
 				word_object[word] = {
 					'appearance': 0,
