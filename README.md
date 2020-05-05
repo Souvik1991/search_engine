@@ -1,4 +1,4 @@
-This is a small app which runs on ###`Flask` to serve api. It has an api endpoing `/search/` which accept `POST` request with arguments `quaries` and `K`.
+This is a small app which runs on [Flask](https://flask.palletsprojects.com/en/1.1.x/) to serve API endpoints. It has an api endpoing called `/search/` which accept `POST` request with arguments `quaries` and `K`.
 `quaries` contains the array of all query
 `K` contains the number of responses will be reverted back
 
