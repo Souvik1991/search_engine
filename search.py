@@ -2,6 +2,7 @@
 import json
 import requests
 from flask import Flask, request
+from flask_cors import cross_origin
 from search.string_match import search_engine
 app = Flask(__name__)
 
@@ -17,6 +18,7 @@ def fetch_author(book_id):
 
 
 @app.route('/search/', methods=['POST'])
+@cross_origin()
 def api_search():
 	if request.method == 'POST':
 		data_arg = request.form or request.get_json()
