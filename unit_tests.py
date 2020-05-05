@@ -11,4 +11,6 @@ if __name__ == "__main__":
 	assert create_fuzzy_words('problems', ['problems', 'problem', 'prob']) == ['problems', 'problem']
 	assert str(calculate_score({'problems': ['problems', 'problem']}, ['problems'], {'word_count': 56, 'mapping': {'problems': {'position': [16, 28], 'appearance': 2}}})) == '2.34'
 	assert search_engine("problems", 1) == [{u'title': u'Slipstream Time Hacking', u'summary': u'The Book in Three Sentences:\xa0Finding something important and meaningful in your life is the most productive use of your time and energy. This is true because every life has problems associated with it and finding meaning in your life will help you sustain the effort needed to overcome the particular problems you face. Thus, we can say that the key to living a good life is not giving a fuck about more things, but rather, giving a fuck only about the things that align with your personal values.', 'score': 2.485, 'id': 48}]
+
+	
 # assert correction('speling') == 'spelling' 
