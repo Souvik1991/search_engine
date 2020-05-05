@@ -80,10 +80,13 @@ def start_processing(data):
 		# 	print d.get('summary').replace(u"\u2019", "'")
 		# 	print re.sub(r'[^\x00-\x7F]+', ' ', d.get('summary'))
 		# 	break
-		
+	
+	# This file contains processed data with each words appearance count and position
+	# where they hace appeared
 	with open('data.processed.json', 'w') as f:
 		f.write(json.dumps(temp_object))
 
+	# This file contains all the words and all the ids where this word is present
 	with open('word.map.json', 'w') as f:
 		f.write(json.dumps(main_word_id_map))
 

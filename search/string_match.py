@@ -20,7 +20,8 @@ with open('data.processed.json', 'r') as f:
 	data = json.loads(f.read())
 
 
-# Quick sort a array of object using a key value
+# Quick sort a list of object using a key
+# This functions accept the list of dictionary and the key of the dictionary which will be used to sort
 def quick_sort_array_of_object(arr, key):
 	less = []
 	pivot_list = []
@@ -63,7 +64,7 @@ def create_fuzzy_words(word, keys):
 				flen = len(strr)
 				# Measuring how much percentage of alphabets it contains of the main word
 				percentage = flen/wlen
-				# If the alphabets appearance is more than 55% of the main word consider it
+				# If the alphabets appearance is more than 50% of the main word consider it
 				# print percentage
 				if strr not in unique_words and percentage > .5:
 					unique_words.append(strr)
@@ -77,7 +78,6 @@ def calculate_score(fuzzy_words, words, word_data):
 	total_words = word_data.get('word_count')
 	total_score = 0
 	total_word_present = 0
-	# print fuzzy_words
 	for word in words:
 		# For the exact words scoring it higher than fuzzy words
 		if mapping.get(word):
